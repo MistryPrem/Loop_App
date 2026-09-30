@@ -12,6 +12,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { UndoToast } from '../components/UndoToast';
 import { speakMedicineReminder, stopSpeaking } from '../services/tts';
 import { getSocket } from '../services/socket';
+import { enqueueOfflineCheckIn, isOnline } from '../services/offlineQueue';
 import { SOCKET_EVENTS } from '@loop/shared/socketEvents';
 
 interface SimplePatientScreenProps {
@@ -36,36 +37,48 @@ export const SimplePatientScreen: React.FC<SimplePatientScreenProps> = ({ naviga
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
-  const handleTaken = () => {
+  const handleTaken = async () => {
     setCurrentDose((prev) => ({ ...prev, taken: true }));
     setToastMessage(`Recorded: ${currentDose.title} taken!`);
     setToastVisible(true);
 
     AccessibilityInfo.announceForAccessibility(`Marked ${currentDose.title} as taken.`);
 
-    // Emit to real-time socket
+    const payload = {
+      loopId: currentDose.loopId,
+      itemId: currentDose.id,
+      status: 'taken' as const
+    };
+
+    const online = await isOnline();
     const socket = getSocket();
-    if (socket && socket.connected) {
-      socket.emit(SOCKET_EVENTS.CLIENT_CHECKIN_CREATE, {
-        loopId: currentDose.loopId,
-        itemId: currentDose.id,
-        status: 'taken'
-      });
+
+    if (online && socket && socket.connected) {
+      socket.emit(SOCKET_EVENTS.CLIENT_CHECKIN_CREATE, payload);
+    } else {
+      // Queue locally for transparent background sync
+      await enqueueOfflineCheckIn(payload);
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     setCurrentDose((prev) => ({ ...prev, taken: true }));
     setToastMessage(`Skipped: ${currentDose.title}`);
     setToastVisible(true);
 
+    const payload = {
+      loopId: currentDose.loopId,
+      itemId: currentDose.id,
+      status: 'skipped' as const
+    };
+
+    const online = await isOnline();
     const socket = getSocket();
-    if (socket && socket.connected) {
-      socket.emit(SOCKET_EVENTS.CLIENT_CHECKIN_CREATE, {
-        loopId: currentDose.loopId,
-        itemId: currentDose.id,
-        status: 'skipped'
-      });
+
+    if (online && socket && socket.connected) {
+      socket.emit(SOCKET_EVENTS.CLIENT_CHECKIN_CREATE, payload);
+    } else {
+      await enqueueOfflineCheckIn(payload);
     }
   };
 
