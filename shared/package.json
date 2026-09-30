@@ -21,6 +21,10 @@
     "./types": {
       "import": "./dist/types/index.js",
       "types": "./dist/types/index.d.ts"
+    },
+    "./domainLogic": {
+      "import": "./dist/domainLogic.js",
+      "types": "./dist/domainLogic.d.ts"
     }
   },
   "scripts": {

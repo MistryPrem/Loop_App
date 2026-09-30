@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { WebA11yProvider, useWebA11y } from './context/WebA11yContext';
 import { Navigation } from './components/Navigation';
 import { SimplePatientWeb } from './pages/SimplePatientWeb';
+import { AllLoopsHubWeb } from './pages/AllLoopsHubWeb';
 import { CaregiverFeedWeb } from './pages/CaregiverFeedWeb';
 import { EmergencyWeb } from './pages/EmergencyWeb';
 import { SettingsWeb } from './pages/SettingsWeb';
@@ -14,7 +15,7 @@ function AppContent() {
       <Navigation />
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         <Routes>
-          <Route path="/" element={simpleMode ? <SimplePatientWeb /> : <CaregiverFeedWeb />} />
+          <Route path="/" element={simpleMode ? <SimplePatientWeb /> : <AllLoopsHubWeb />} />
           <Route path="/feed" element={<CaregiverFeedWeb />} />
           <Route path="/emergency" element={<EmergencyWeb />} />
           <Route path="/settings" element={<SettingsWeb />} />
