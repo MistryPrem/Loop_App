@@ -1,0 +1,24 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build and upload signed Android App Bundle to Google Play Internal track"
+  lane :internal do
+    gradle(
+      task: "bundle",
+      build_type: "Release",
+      project_dir: "android/"
+    )
+    upload_to_play_store(
+      track: "internal",
+      release_status: "draft"
+    )
+  end
+
+  desc "Promote internal build to production track"
+  lane :promote_to_production do
+    upload_to_play_store(
+      track: "internal",
+      track_promote_to: "production"
+    )
+  end
+end

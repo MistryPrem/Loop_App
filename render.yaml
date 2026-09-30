@@ -1,0 +1,52 @@
+services:
+  # Loop Web & Socket API Service
+  - type: web
+    name: loop-api
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm run build:shared
+    startCommand: node server/src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: loop-redis
+          property: connectionString
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: CLIENT_ORIGIN
+        value: https://app.example.com
+      - key: LOG_LEVEL
+        value: info
+
+  # Separate BullMQ Worker Instance so scheduled scans run exactly once
+  - type: worker
+    name: loop-scheduler-worker
+    runtime: node
+    plan: starter
+    buildCommand: npm install && npm run build:shared
+    startCommand: node -e "import('./server/src/jobs/missedCheckInJob.js').then(m => m.initializeMissedCheckinWorker())"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: loop-redis
+          property: connectionString
+
+  # Redis instance for Socket.io adapter & BullMQ queues
+  - type: redis
+    name: loop-redis
+    plan: starter
+    ipAllowList: []
