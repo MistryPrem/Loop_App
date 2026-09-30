@@ -6,13 +6,18 @@
   "workspaces": [
     "shared",
     "server",
-    "web"
+    "web",
+    "mobile"
   ],
   "scripts": {
     "build:shared": "npm run build --workspace=shared",
     "dev:server": "npm run dev --workspace=server",
     "dev:web": "npm run dev --workspace=web",
+    "start:mobile": "npm run start --workspace=mobile",
+    "android": "npm run android --workspace=mobile",
+    "ios": "npm run ios --workspace=mobile",
     "test:server": "npm run test --workspace=server",
+    "test:mobile": "npm run test --workspace=mobile",
     "lint:server": "npm run lint --workspace=server",
     "lint:web": "npm run lint --workspace=web"
   }
