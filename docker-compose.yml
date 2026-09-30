@@ -1,0 +1,41 @@
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/loop
+      - REDIS_URL=redis://redis:6379
+      - JWT_ACCESS_SECRET=local_docker_jwt_access_secret_123456789
+      - JWT_REFRESH_SECRET=local_docker_jwt_refresh_secret_123456789
+      - CLIENT_ORIGIN=http://localhost:5173
+    depends_on:
+      - mongo
+      - redis
+    volumes:
+      - ./server/src:/app/server/src
+      - ./shared/src:/app/shared/src
+
+  mongo:
+    image: mongo:7.0
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongo_data:
+  redis_data:

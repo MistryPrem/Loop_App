@@ -1,0 +1,19 @@
+{
+  "name": "loop-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=shared",
+    "dev:server": "npm run dev --workspace=server",
+    "dev:web": "npm run dev --workspace=web",
+    "test:server": "npm run test --workspace=server",
+    "lint:server": "npm run lint --workspace=server",
+    "lint:web": "npm run lint --workspace=web"
+  }
+}

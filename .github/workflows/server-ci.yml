@@ -1,0 +1,57 @@
+name: Server CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'server/**'
+      - 'shared/**'
+      - '.github/workflows/server-ci.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'server/**'
+      - 'shared/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build shared package
+        run: npm run build:shared
+
+      - name: Run server tests (ESM)
+        env:
+          PORT: 4000
+          NODE_ENV: test
+          MONGODB_URI: mongodb://localhost:27017/loop_test
+          REDIS_URL: redis://localhost:6379
+          JWT_ACCESS_SECRET: github_actions_jwt_access_secret_test
+          JWT_REFRESH_SECRET: github_actions_jwt_refresh_secret_test
+          CLIENT_ORIGIN: http://localhost:5173
+        run: npm run test:server
+
+      - name: Build Docker image verification
+        run: docker build -t loop-server -f server/Dockerfile .
