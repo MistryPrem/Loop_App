@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Fluid typography and zero text truncation on browser zoom */
+  html {
+    font-size: 100%; /* Respect user's default browser text size */
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Accessible focus indicators meeting WCAG 2.2 AA */
+  :focus-visible {
+    outline: 3px solid #0D9488;
+    outline-offset: 2px;
+  }
+
+  /* High contrast mode focus */
+  .high-contrast :focus-visible {
+    outline: 4px solid #FFFF00 !important;
+    outline-offset: 3px !important;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
